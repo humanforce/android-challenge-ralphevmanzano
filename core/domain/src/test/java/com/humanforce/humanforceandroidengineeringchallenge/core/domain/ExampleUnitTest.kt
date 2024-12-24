@@ -1,4 +1,4 @@
-package com.humanforce.humanforceandroidengineeringchallenge.core.model
+package com.humanforce.humanforceandroidengineeringchallenge.core.domain
 
 import org.junit.Test
 

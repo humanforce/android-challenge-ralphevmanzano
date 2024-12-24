@@ -1,4 +1,4 @@
-package com.humanforce.humanforceandroidengineeringchallenge.core.model
+package com.humanforce.humanforceandroidengineeringchallenge.core.domain
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -20,7 +20,7 @@ class ExampleInstrumentedTest {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals(
-            "com.humanforce.humanforceandroidengineeringchallenge.core.model.test",
+            "com.humanforce.humanforceandroidengineeringchallenge.core.domain.test",
             appContext.packageName
         )
     }
