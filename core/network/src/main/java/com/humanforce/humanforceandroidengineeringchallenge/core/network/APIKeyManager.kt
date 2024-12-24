@@ -1,6 +1,8 @@
+package com.humanforce.humanforceandroidengineeringchallenge.core.network
+
 object APIKeyManager {
 
-    private var _apiKey: String = com.humanforce.humanforceandroidengineeringchallenge.BuildConfig.OPEN_WEATHER_MAP_API_KEY
+    private var _apiKey: String = BuildConfig.OPEN_WEATHER_MAP_API_KEY
 
     val apiKey: String
         get() = _apiKey.takeIf { it.isNotEmpty() }
