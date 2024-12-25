@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.config.JvmTarget
 import java.util.Properties
 
 plugins {
@@ -40,19 +41,21 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = JvmTarget.JVM_17.toString()
     }
 }
 
 dependencies {
+    implementation(project(":core:domain"))
+
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-
+    
     // Retrofit + Okhttp + Sandwich
     implementation(platform(libs.retrofit.bom))
     implementation(libs.retrofit)
@@ -66,5 +69,4 @@ dependencies {
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 }

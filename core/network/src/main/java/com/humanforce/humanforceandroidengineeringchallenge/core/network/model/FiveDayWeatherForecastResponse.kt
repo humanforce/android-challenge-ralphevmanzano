@@ -8,12 +8,12 @@ data class FiveDayForecastResponse(
     val cod: String,
     val message: Int,
     val cnt: Int,
-    val list: List<Forecast>,
+    val list: List<ForecastData>,
     val city: City
 )
 
 @Serializable
-data class Forecast(
+data class ForecastData(
     val dt: Long,
     val main: Main,
     val weather: List<Weather>,

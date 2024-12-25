@@ -1,5 +1,6 @@
 package com.humanforce.humanforceandroidengineeringchallenge.core.network.model
 
+import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.WeatherInfo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

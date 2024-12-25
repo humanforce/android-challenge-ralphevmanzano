@@ -1,6 +1,7 @@
 package com.humanforce.humanforceandroidengineeringchallenge.core.network.di
 
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.BuildConfig
+import com.humanforce.humanforceandroidengineeringchallenge.core.network.WeatherUnitsInterceptor
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.service.GeocodingService
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.service.WeatherService
 import dagger.Module
@@ -46,6 +47,7 @@ class NetworkModule {
                     }
                 )
             }
+            this.addNetworkInterceptor(WeatherUnitsInterceptor())
         }.build()
 
     @WeatherRetrofit

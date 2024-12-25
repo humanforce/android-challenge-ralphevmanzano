@@ -1,7 +1,7 @@
 [versions]
-agp = "8.3.2"
-kotlin = "1.9.0"
-coreKtx = "1.15.0"
+agp = "8.5.2"
+kotlin = "2.0.10"
+coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
@@ -11,15 +11,15 @@ activity = "1.9.3"
 constraintlayout = "2.2.0"
 lifecycle = "2.8.7"
 androidxRoom = "2.6.1"
-activityCompose = "1.9.3"
-composeBom = "2024.12.01"
-composeNavigation = "2.8.5"
+activityCompose = "1.9.1"
+composeBom = "2024.04.01"
+composeNavigation = "2.8.0-rc01"
 serialization = "1.7.1"
 retrofit = "2.11.0"
 sandwich = "2.0.9"
 hilt = "2.52"
 okHttp = "4.12.0"
-ksp = "1.9.0-1.0.13"
+ksp = "2.0.10-1.0.24"
 landscapist = "2.3.6"
 coroutines = "1.9.0"
 androidxHiltNavigationCompose = "1.2.0"
@@ -61,6 +61,7 @@ landscapist-placeholder = { group = "com.github.skydoves", name = "landscapist-p
 coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidxHiltNavigationCompose" }
+androidx-lifecycle-runtime-compose-android = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose-android", version.ref = "lifecycle" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
