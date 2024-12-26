@@ -6,7 +6,7 @@ import com.humanforce.humanforceandroidengineeringchallenge.core.shared.extensio
 
 object WeatherMapper {
 
-    fun mapToWeatherInfo(weatherResponse: CurrentWeatherResponse): WeatherInfo {
+    fun toWeatherInfo(weatherResponse: CurrentWeatherResponse): WeatherInfo {
         return WeatherInfo(
             temp = weatherResponse.main.temp.toInt(),
             feelsLike = weatherResponse.main.feelsLike.toInt(),

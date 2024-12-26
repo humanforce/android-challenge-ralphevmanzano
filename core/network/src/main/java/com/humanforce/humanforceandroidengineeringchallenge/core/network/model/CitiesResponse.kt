@@ -12,7 +12,6 @@ data class CitiesResponse(
     val lat: Double,
     val lon: Double,
     val country: String,
-    val state: String? = null
 )
 
 fun CitiesResponse.toCity(): CityModel {
@@ -21,6 +20,5 @@ fun CitiesResponse.toCity(): CityModel {
         lat = lat,
         long = lon,
         country = country,
-        state = state
     )
 }

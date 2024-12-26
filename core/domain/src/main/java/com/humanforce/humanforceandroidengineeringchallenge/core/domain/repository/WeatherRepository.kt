@@ -29,4 +29,8 @@ interface WeatherRepository {
         onComplete: () -> Unit,
         onError: (String?) -> Unit
     ): Flow<List<City>>
+
+    fun loadFavoriteCities(): Flow<List<City>>
+    suspend fun addFavoriteCity(city: City)
+    suspend fun removeFavoriteCity(id: Int)
 }

@@ -37,7 +37,7 @@ class WeatherRemoteDataSourceImpl @Inject constructor(
     ): Flow<WeatherInfo> = flow {
         val response = weatherService.getCurrentWeather(lat, long)
         response.suspendOnSuccess {
-            emit(WeatherMapper.mapToWeatherInfo(data))
+            emit(WeatherMapper.toWeatherInfo(data))
         }.onFailure {
             onError(message())
         }

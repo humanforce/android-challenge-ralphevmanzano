@@ -125,7 +125,17 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             composable<Screen.Cities> {
-                                CitiesScreen()
+                                CitiesScreen(
+                                    weatherViewModel = weatherViewModel,
+                                    onSearchClick = {
+                                        navController.navigate(Screen.Search)
+                                    },
+                                    onCityClick = {
+                                        // go back to home and show weather for the selected city
+                                        navController.popBackStack()
+                                        weatherViewModel.getCurrentWeatherAndForecast(it.lat, it.long, false)
+                                    }
+                                )
                             }
                             composable<Screen.Search> {
                                 SearchScreen(

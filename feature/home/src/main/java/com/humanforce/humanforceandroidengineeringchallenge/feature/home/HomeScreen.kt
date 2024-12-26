@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.humanforce.humanforceandroidengineeringchallenge.core.designsystem.component.WeatherTopAppBar
+import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.City
 import com.humanforce.humanforceandroidengineeringchallenge.core.shared.viewmodel.WeatherViewModel
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.glide.GlideImage
@@ -49,13 +50,41 @@ fun HomeScreen(
 
     val uiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
     val weatherInfo = uiState.weatherInfo
+    val isCurrentLocation = uiState.isCurrentLocation
+
+    val favoriteCities by weatherViewModel.favoriteCities.collectAsStateWithLifecycle()
+
+    fun isFavorite(id: Int): Boolean {
+        return favoriteCities.any { it.id == id }
+    }
+
+    fun handleFavoriteClick() {
+        val city = City(
+            id = weatherInfo?.cityId ?: 0,
+            name = weatherInfo?.cityName ?: "",
+            lat = weatherInfo?.lat ?: 0.0,
+            long = weatherInfo?.long ?: 0.0,
+            country = weatherInfo?.country ?: "",
+        )
+
+        if (isFavorite(city.id)) {
+            weatherViewModel.removeCityToFavorites(city)
+        } else {
+            weatherViewModel.addCityToFavorites(city)
+        }
+    }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        WeatherTopAppBar(modifier = Modifier.fillMaxWidth(), onSearchClick = onSearchClick)
+        WeatherTopAppBar(
+            modifier = Modifier.fillMaxWidth(),
+            onSearchClick = onSearchClick,
+            isFavorite = isFavorite(weatherInfo?.cityId ?: 0),
+            onFavoriteClick = { if (!isCurrentLocation) handleFavoriteClick() }
+        )
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
                 text = weatherInfo?.cityName.orEmpty(),
@@ -63,7 +92,7 @@ fun HomeScreen(
                     .padding(16.dp)
                     .align(Alignment.CenterHorizontally),
                 style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
             Row(
                 modifier = Modifier
@@ -89,7 +118,9 @@ fun HomeScreen(
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "${weatherInfo?.tempMax ?: 0}°C", fontSize = 32.sp)
-                    HorizontalDivider(modifier = Modifier.width(100.dp).padding(vertical = 4.dp))
+                    HorizontalDivider(modifier = Modifier
+                        .width(100.dp)
+                        .padding(vertical = 4.dp))
                     Text(text = "${weatherInfo?.tempMin ?: 0}°C", fontSize = 32.sp, color = Color.Gray)
                 }
             }
@@ -173,12 +204,16 @@ fun HomeScreen(
                         ) {
                             Text(forecast.day)
                             GlideImage(
-                                modifier = Modifier.size(48.dp).padding(vertical = 8.dp),
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .padding(vertical = 8.dp),
                                 imageModel = { forecast.weatherIconUrl },
                                 imageOptions = ImageOptions(contentScale = ContentScale.Fit)
                             )
                             Text("${forecast.tempMax.toInt()}°")
-                            HorizontalDivider(modifier = Modifier.width(48.dp).padding(vertical = 4.dp))
+                            HorizontalDivider(modifier = Modifier
+                                .width(48.dp)
+                                .padding(vertical = 4.dp))
                             Text("${forecast.tempMin.toInt()}°", color = Color.Gray)
                         }
                     }
