@@ -8,9 +8,10 @@ import retrofit2.http.Query
 
 interface GeocodingService {
 
-    @GET("geo/1.0/direct")
+    @GET("direct")
     suspend fun getCities(
         @Query("q") name: String,
-        @Query("appid") appId: String = APIKeyManager.apiKey
+        @Query("appid") appId: String = APIKeyManager.apiKey,
+        @Query("limit") limit: Int = 5
     ): ApiResponse<List<CitiesResponse>>
 }

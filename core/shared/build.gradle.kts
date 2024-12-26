@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.config.JvmTarget
-
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -8,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.humanforce.humanforceandroidengineeringchallenge.core.data"
+    namespace = "com.humanforce.humanforceandroidengineeringchallenge.core.shared"
     compileSdk = 34
 
     defaultConfig {
@@ -28,29 +26,26 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = JvmTarget.JVM_17.toString()
+        jvmTarget = "1.8"
     }
 }
 
 dependencies {
-    // modules
     implementation(project(":core:domain"))
-    implementation(project(":core:network"))
-    implementation(project(":core:database"))
-    implementation(project(":core:shared"))
 
-    implementation(libs.coroutines.core)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
 
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    
-    implementation(libs.sandwich.retrofit)
-    implementation(libs.sandwich)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 }

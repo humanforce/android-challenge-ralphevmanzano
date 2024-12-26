@@ -48,6 +48,7 @@ dependencies {
     implementation(project(":core:domain"))
     implementation(project(":core:data"))
     implementation(project(":core:designsystem"))
+    implementation(project(":core:shared"))
     implementation(project(":feature:home"))
     implementation(project(":feature:cities"))
     implementation(project(":feature:search"))
@@ -74,6 +75,8 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
+    implementation(libs.play.services.location)
 
     // hilt
     implementation(libs.hilt.android)

@@ -4,6 +4,7 @@ import com.humanforce.humanforceandroidengineeringchallenge.core.network.BuildCo
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.WeatherUnitsInterceptor
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.service.GeocodingService
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.service.WeatherService
+import com.skydoves.sandwich.retrofit.adapters.ApiResponseCallAdapterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,6 +26,14 @@ annotation class WeatherRetrofit
 @Retention(AnnotationRetention.BINARY)
 annotation class GeocodingRetrofit
 
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class WeatherOkHttp
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class GeocodingOkHttp
+
 @Module
 @InstallIn(SingletonComponent::class)
 class NetworkModule {
@@ -36,9 +45,10 @@ class NetworkModule {
         ignoreUnknownKeys = true
     }
 
+    @WeatherOkHttp
     @Singleton
     @Provides
-    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+    fun provideWeatherOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
         .apply {
             if (BuildConfig.DEBUG) {
                 this.addNetworkInterceptor(
@@ -50,25 +60,41 @@ class NetworkModule {
             this.addNetworkInterceptor(WeatherUnitsInterceptor())
         }.build()
 
+    @GeocodingOkHttp
+    @Singleton
+    @Provides
+    fun provideGeocodingOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+        .apply {
+            if (BuildConfig.DEBUG) {
+                this.addNetworkInterceptor(
+                    HttpLoggingInterceptor().apply {
+                        level = HttpLoggingInterceptor.Level.BODY
+                    }
+                )
+            }
+        }.build()
+
     @WeatherRetrofit
     @Provides
     @Singleton
-    fun provideWeatherRetrofit(json: Json, okHttpClient: OkHttpClient): Retrofit {
+    fun provideWeatherRetrofit(json: Json, @WeatherOkHttp okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl("https://api.openweathermap.org/data/2.5/")
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()
     }
 
     @GeocodingRetrofit
     @Provides
     @Singleton
-    fun provideGeocodingRetrofit(json: Json, okHttpClient: OkHttpClient): Retrofit {
+    fun provideGeocodingRetrofit(json: Json, @GeocodingOkHttp okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .client(okHttpClient)
             .baseUrl("https://api.openweathermap.org/geo/1.0/")
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .addCallAdapterFactory(ApiResponseCallAdapterFactory.create())
             .build()
     }
 

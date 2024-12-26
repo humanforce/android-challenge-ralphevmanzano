@@ -1,5 +1,6 @@
 package com.humanforce.humanforceandroidengineeringchallenge.feature.home
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,11 +13,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,90 +34,31 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.Forecast
-import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.WeatherInfo
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.humanforce.humanforceandroidengineeringchallenge.core.designsystem.component.WeatherTopAppBar
+import com.humanforce.humanforceandroidengineeringchallenge.core.shared.viewmodel.WeatherViewModel
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.glide.GlideImage
 
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    weatherViewModel: WeatherViewModel,
+    onSearchClick: () -> Unit
 ) {
-//    val uiState = homeViewModel.uiState.collectAsStateWithLifecycle()
-    val weatherInfo = WeatherInfo(
-        temp = 25,
-        feelsLike = 24.5,
-        tempMin = 20,
-        tempMax = 28,
-        pressure = 1012,
-        humidity = 60,
-        cityId = 123456,
-        cityName = "Sample City",
-        windSpeed = 5.5,
-        clouds = 75,
-        visibility = 10000,
-        weatherId = 801,
-        weatherMain = "Clouds",
-        weatherDescription = "few clouds",
-        weatherIconUrl = "https://openweathermap.org/img/wn/02d@2x.png",
-        forecast = listOf(
-            Forecast(
-                dt = 1695564000,
-                dtTxt = "Mon",
-                tempMin = 18.5,
-                tempMax = 25.3,
-                weatherMain = "Clouds",
-                weatherDescription = "broken clouds",
-                weatherIcon = "https://openweathermap.org/img/wn/04d@2x.png"
-            ),
-            Forecast(
-                dt = 1695650400,
-                dtTxt = "Tue",
-                tempMin = 20.0,
-                tempMax = 26.0,
-                weatherMain = "Clear",
-                weatherDescription = "clear sky",
-                weatherIcon = "https://openweathermap.org/img/wn/01d@2x.png"
-            ),
-            Forecast(
-                dt = 1695736800,
-                dtTxt = "Wed",
-                tempMin = 19.0,
-                tempMax = 24.5,
-                weatherMain = "Rain",
-                weatherDescription = "light rain",
-                weatherIcon = "https://openweathermap.org/img/wn/10d@2x.png"
-            ),
-            Forecast(
-                dt = 1695823200,
-                dtTxt = "Thu",
-                tempMin = 17.5,
-                tempMax = 23.0,
-                weatherMain = "Clouds",
-                weatherDescription = "scattered clouds",
-                weatherIcon = "https://openweathermap.org/img/wn/03d@2x.png"
-            ),
-            Forecast(
-                dt = 1695909600,
-                dtTxt = "Fri",
-                tempMin = 21.0,
-                tempMax = 27.0,
-                weatherMain = "Clear",
-                weatherDescription = "clear sky",
-                weatherIcon = "https://openweathermap.org/img/wn/01d@2x.png"
-            )
-        )
-    )
 
-    Column(modifier = modifier.fillMaxSize()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-        )
+    val uiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
+    val weatherInfo = uiState.weatherInfo
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        WeatherTopAppBar(modifier = Modifier.fillMaxWidth(), onSearchClick = onSearchClick)
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(
-                text = "Davao City",
+                text = weatherInfo?.cityName.orEmpty(),
                 modifier = Modifier
                     .padding(16.dp)
                     .align(Alignment.CenterHorizontally),
@@ -124,9 +73,9 @@ fun HomeScreen(
                 verticalAlignment = Alignment.Bottom
             ) {
                 Column {
-                    Row {
+                    Row(verticalAlignment = Alignment.Bottom) {
                         GlideImage(
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(72.dp),
                             imageModel = { weatherInfo?.weatherIconUrl },
                             imageOptions = ImageOptions(contentScale = ContentScale.Fit)
                         )
@@ -140,8 +89,8 @@ fun HomeScreen(
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "${weatherInfo?.tempMax ?: 0}°C", fontSize = 32.sp)
-                    HorizontalDivider(modifier = Modifier.width(100.dp))
-                    Text(text = "${weatherInfo?.tempMin ?: 0}°C", fontSize = 32.sp)
+                    HorizontalDivider(modifier = Modifier.width(100.dp).padding(vertical = 4.dp))
+                    Text(text = "${weatherInfo?.tempMin ?: 0}°C", fontSize = 32.sp, color = Color.Gray)
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -159,9 +108,13 @@ fun HomeScreen(
                 "Wind Speed" to "${weatherInfo?.windSpeed ?: 0} m/s",
                 "Pressure" to "${weatherInfo?.pressure ?: 0} hPa",
                 "Visibility" to "${weatherInfo?.visibility ?: 0} m",
-                "Clouds" to "${weatherInfo?.clouds} %"
+                "Clouds" to "${weatherInfo?.clouds}%"
             )
-            Column(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            ) {
                 for (i in details.chunked(3)) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -172,7 +125,7 @@ fun HomeScreen(
                                 modifier = Modifier
                                     .size(100.dp)
                                     .background(Color.White, RoundedCornerShape(8.dp))
-                                    .padding(8.dp),
+                                    .padding(16.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
@@ -192,7 +145,7 @@ fun HomeScreen(
                             }
                         }
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -209,20 +162,25 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 16.dp)
-                    .background(color = Color.DarkGray),
+                    .background(Color.Transparent, RoundedCornerShape(8.dp)),
                 horizontalArrangement = Arrangement.SpaceAround,
             ) {
-                weatherInfo.forecast.map { 
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(it.dtTxt)
-                        GlideImage(
-                            modifier = Modifier.size(24.dp),
-                            imageModel = { it.weatherIcon },
-                            imageOptions = ImageOptions(contentScale = ContentScale.Fit)
-                        )
-                        Text("${it.tempMax.toInt()}°")
-                        HorizontalDivider(modifier = Modifier.width(24.dp))
-                        Text("${it.tempMin.toInt()}°")
+                if (weatherInfo != null) {
+                    for (forecast in weatherInfo.forecast) {
+                        Column(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(forecast.day)
+                            GlideImage(
+                                modifier = Modifier.size(48.dp).padding(vertical = 8.dp),
+                                imageModel = { forecast.weatherIconUrl },
+                                imageOptions = ImageOptions(contentScale = ContentScale.Fit)
+                            )
+                            Text("${forecast.tempMax.toInt()}°")
+                            HorizontalDivider(modifier = Modifier.width(48.dp).padding(vertical = 4.dp))
+                            Text("${forecast.tempMin.toInt()}°", color = Color.Gray)
+                        }
                     }
                 }
             }
@@ -234,6 +192,6 @@ fun HomeScreen(
 @Composable
 private fun HomeScreenPreview() {
     MaterialTheme {
-        HomeScreen(modifier = Modifier.fillMaxSize())
+//        HomeScreen(modifier = Modifier.fillMaxSize())
     }
 }

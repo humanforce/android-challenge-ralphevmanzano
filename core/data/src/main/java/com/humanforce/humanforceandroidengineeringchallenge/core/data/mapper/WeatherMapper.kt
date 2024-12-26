@@ -2,13 +2,14 @@ package com.humanforce.humanforceandroidengineeringchallenge.core.data.mapper
 
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.WeatherInfo
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.model.CurrentWeatherResponse
+import com.humanforce.humanforceandroidengineeringchallenge.core.shared.extensions.buildIconUrl
 
 object WeatherMapper {
 
     fun mapToWeatherInfo(weatherResponse: CurrentWeatherResponse): WeatherInfo {
         return WeatherInfo(
             temp = weatherResponse.main.temp.toInt(),
-            feelsLike = weatherResponse.main.feelsLike,
+            feelsLike = weatherResponse.main.feelsLike.toInt(),
             tempMin = weatherResponse.main.tempMin.toInt(),
             tempMax = weatherResponse.main.tempMax.toInt(),
             pressure = weatherResponse.main.pressure,
@@ -21,12 +22,10 @@ object WeatherMapper {
             weatherId = weatherResponse.weather.first().id,
             weatherMain = weatherResponse.weather.first().main,
             weatherDescription = weatherResponse.weather.first().description,
-            weatherIconUrl = buildIconUrl(weatherResponse.weather.first().icon)
+            weatherIconUrl = weatherResponse.weather.first().icon.buildIconUrl(),
+            country = weatherResponse.sys.country,
+            lat = weatherResponse.coordinates.lat,
+            long = weatherResponse.coordinates.lon
         )
-    }
-
-    private fun buildIconUrl(iconCode: String): String {
-        return if (iconCode.isNotBlank()) "https://openweathermap.org/img/wn/$iconCode@2x.png"
-        else ""
     }
 }

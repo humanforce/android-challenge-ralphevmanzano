@@ -2,6 +2,8 @@ package com.humanforce.humanforceandroidengineeringchallenge.core.data.mapper
 
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.Forecast
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.model.FiveDayForecastResponse
+import com.humanforce.humanforceandroidengineeringchallenge.core.shared.extensions.buildIconUrl
+import com.humanforce.humanforceandroidengineeringchallenge.core.shared.utils.DateUtils
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -16,7 +18,6 @@ object ForecastMapper {
 
         // Group forecasts by day
         val forecastsByDay = forecastResponse.list.groupBy {
-            // TODO: move to a DateUtil class later
             sdf.format(Date(it.dt * 1000L + timezone))
         }
 
@@ -24,15 +25,18 @@ object ForecastMapper {
             // For simplicity, just taking the first entry of weather info per day
             val weather = forecasts.first().weather.firstOrNull()
 
+            val minTemp = forecasts.minOf { it.main.tempMin }
+            val maxTemp = forecasts.maxOf { it.main.tempMax }
+
             Forecast(
                 dt = forecasts.first().dt,
-                dtTxt = day,
-                tempMin = forecasts.minOf { it.main.tempMin },
-                tempMax = forecasts.maxOf { it.main.tempMax },
+                day = DateUtils.dateToDayOfWeek(day),
+                tempMin = minTemp,
+                tempMax = maxTemp,
                 weatherMain = weather?.main.orEmpty(),
                 weatherDescription = weather?.description.orEmpty(),
-                weatherIcon = weather?.icon.orEmpty()
+                weatherIconUrl = weather?.icon.orEmpty().buildIconUrl()
             )
-        }
+        }.takeLast(5)
     }
 }
