@@ -3,6 +3,7 @@ package com.humanforce.humanforceandroidengineeringchallenge.core.shared.viewmod
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.City
+import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.WeatherInfo
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.usecase.AddFavoriteCityUseCase
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.usecase.GetCurrentWeatherAndForecastUseCase
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.usecase.LoadFavoriteCitiesUseCase
@@ -20,7 +21,6 @@ import javax.inject.Inject
 @HiltViewModel
 class WeatherViewModel @Inject constructor(
     private val getCurrentWeatherAndForecastUseCase: GetCurrentWeatherAndForecastUseCase,
-    private val addFavoriteCityUseCase: AddFavoriteCityUseCase,
     private val removeFavoriteCityUseCase: RemoveFavoriteCityUseCase,
     private val loadFavoriteCitiesUseCase: LoadFavoriteCitiesUseCase
 ): ViewModel() {
@@ -28,20 +28,35 @@ class WeatherViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(WeatherUiState())
     val uiState: StateFlow<WeatherUiState> = _uiState.asStateFlow()
 
+    private val _currentLocationWeatherInfo = MutableStateFlow<WeatherInfo?>(null)
+    val currentLocationWeatherInfo: StateFlow<WeatherInfo?> = _currentLocationWeatherInfo.asStateFlow()
+
+    private var prevLat: Double? = null
+    private var prevLong: Double? = null
+    private var prevIsHome: Boolean = false
+
     fun getCurrentWeatherAndForecast(lat: Double, long: Double, isHome: Boolean = false) {
+        prevLat = lat
+        prevLong = long
+        prevIsHome = isHome
+
         viewModelScope.launch {
             getCurrentWeatherAndForecastUseCase(
                 lat,
                 long,
-                onStart = { _uiState.update { it.copy(isLoading = true) } },
+                onStart = { _uiState.update { it.copy(isLoading = true, error = null) } },
                 onComplete = {},
                 onError = { error -> _uiState.update { it.copy(isLoading = false, error = error) } }
             ).collect { weatherInfo ->
+                if (isHome) {
+                    _currentLocationWeatherInfo.value = weatherInfo
+                }
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         weatherInfo = weatherInfo,
-                        isCurrentLocation = isHome
+                        isCurrentLocation = isHome,
+                        error = null
                     )
                 }
             }
@@ -54,15 +69,26 @@ class WeatherViewModel @Inject constructor(
         initialValue = emptyList()
     )
 
-    fun addCityToFavorites(city: City) {
+    fun removeCityToFavorites(city: City) {
         viewModelScope.launch {
-            addFavoriteCityUseCase(city)
+            // if selected city is removed from favorites, show the current location weather info
+            if (_uiState.value.weatherInfo?.cityId == city.id) {
+                _uiState.update { it.copy(weatherInfo = currentLocationWeatherInfo.value) }
+            }
+            removeFavoriteCityUseCase(city)
         }
     }
 
-    fun removeCityToFavorites(city: City) {
-        viewModelScope.launch {
-            removeFavoriteCityUseCase(city)
+    fun onNetworkConnectionStateChange(enabled: Boolean) {
+        _uiState.update { it.copy(hasNoInternet = !enabled) }
+
+        // Fetch weather info from last coordinates
+        if (enabled && prevLat != null && prevLong != null) {
+            getCurrentWeatherAndForecast(prevLat!!, prevLong!!, prevIsHome)
         }
+    }
+
+    fun consumeError() {
+        _uiState.update { it.copy(error = null) }
     }
 }

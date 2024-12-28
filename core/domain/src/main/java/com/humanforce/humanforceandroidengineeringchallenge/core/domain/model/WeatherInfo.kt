@@ -22,7 +22,19 @@ data class WeatherInfo(
     val weatherDescription: String = "",
     val weatherIconUrl: String = "",
     val forecast: List<Forecast> = emptyList()
-)
+) {
+
+    fun getDetailsList(): List<Pair<String, String>> {
+        return listOf(
+            "Feels Like" to "$feelsLike°",
+            "Humidity" to "$humidity%",
+            "Wind Speed" to "$windSpeed m/s",
+            "Pressure" to "$pressure hPa",
+            "Visibility" to "$visibility m",
+            "Clouds" to "$clouds%"
+        )
+    }
+}
 
 data class Forecast(
     val dt: Long = 0,

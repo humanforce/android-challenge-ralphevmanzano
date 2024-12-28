@@ -1,7 +1,6 @@
 package com.humanforce.humanforceandroidengineeringchallenge.core.designsystem.component
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -17,22 +16,19 @@ import androidx.compose.ui.Modifier
 @Composable
 fun WeatherTopAppBar(
     modifier: Modifier = Modifier,
-    onSearchClick: () -> Unit,
+    showSearch: Boolean = false,
+    onSearchClick: () -> Unit = {  },
     isFavorite: Boolean = false,
-    onFavoriteClick: (() -> Unit)? = null,
+    showFavorite: Boolean = false,
+    onFavoriteClick: () -> Unit = {  },
+    showBackButton: Boolean = false,
+    onBackClick: () -> Unit = {  }
 ) {
     TopAppBar(
         modifier = modifier,
         title = {},
         actions = {
-            // Search icon button
-            IconButton(onClick = onSearchClick) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search"
-                )
-            }
-            if (onFavoriteClick != null) {
+            if (showFavorite) {
                 // Favorite icon button
                 IconButton(onClick = onFavoriteClick) {
                     Icon(
@@ -40,6 +36,24 @@ fun WeatherTopAppBar(
                         contentDescription = "Favorite"
                     )
                 }
+            }
+            if (showSearch) {
+                // Search icon button
+                IconButton(onClick = onSearchClick) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search"
+                    )
+                }
+            }
+        },
+        navigationIcon = {
+            if (showBackButton) {
+                // Back icon button
+                IconButton(onClick = onBackClick) {
+                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                }
+
             }
         }
     )

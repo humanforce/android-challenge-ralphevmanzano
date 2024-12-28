@@ -7,6 +7,5 @@ data class WeatherUiState(
     val weatherInfo: WeatherInfo? = null,
     val error: String? = null,
     val hasNoInternet: Boolean = false,
-    val hasNoLocation: Boolean = false,
     val isCurrentLocation: Boolean = false
 )

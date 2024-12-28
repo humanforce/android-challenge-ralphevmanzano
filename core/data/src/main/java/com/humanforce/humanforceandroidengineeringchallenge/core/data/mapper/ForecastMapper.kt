@@ -13,12 +13,10 @@ object ForecastMapper {
 
     fun toForecastList(forecastResponse: FiveDayForecastResponse): List<Forecast> {
         val timezone = forecastResponse.city.timezone * 1000L
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        sdf.timeZone = TimeZone.getTimeZone("GMT")
 
         // Group forecasts by day
         val forecastsByDay = forecastResponse.list.groupBy {
-            sdf.format(Date(it.dt * 1000L + timezone))
+            DateUtils.dtToYYYYMMDD(it.dt, timezone)
         }
 
         return forecastsByDay.map { (day, forecasts) ->

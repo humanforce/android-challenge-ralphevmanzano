@@ -8,11 +8,13 @@ import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.Fo
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.WeatherInfo
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.Dispatcher
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.WeatherDispatchers
+import com.humanforce.humanforceandroidengineeringchallenge.core.network.WeatherErrorResponseMapper
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.model.toCity
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.service.GeocodingService
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.service.WeatherService
-import com.skydoves.sandwich.message
-import com.skydoves.sandwich.onFailure
+import com.skydoves.sandwich.map
+import com.skydoves.sandwich.onError
+import com.skydoves.sandwich.onException
 import com.skydoves.sandwich.suspendOnSuccess
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -26,7 +28,7 @@ class WeatherRemoteDataSourceImpl @Inject constructor(
     private val weatherService: WeatherService,
     private val geocodingService: GeocodingService,
     @Dispatcher(WeatherDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
-): WeatherRemoteDataSource {
+) : WeatherRemoteDataSource {
 
     override fun getCurrentWeather(
         lat: Double,
@@ -38,8 +40,11 @@ class WeatherRemoteDataSourceImpl @Inject constructor(
         val response = weatherService.getCurrentWeather(lat, long)
         response.suspendOnSuccess {
             emit(WeatherMapper.toWeatherInfo(data))
-        }.onFailure {
-            onError(message())
+        }.onError {
+            // Map the ApiResponse.Failure.Error to WeatherErrorResponse
+            map(WeatherErrorResponseMapper) { onError(this.message) }
+        }.onException {
+            onError("An unexpected error occurred. Please try again.")
         }
     }.onStart { onStart() }.onCompletion { onComplete() }.flowOn(ioDispatcher)
 
@@ -53,8 +58,11 @@ class WeatherRemoteDataSourceImpl @Inject constructor(
         val response = weatherService.getWeatherForecast(lat, long)
         response.suspendOnSuccess {
             emit(ForecastMapper.toForecastList(data))
-        }.onFailure {
-            onError(message())
+        }.onError {
+            // Map the ApiResponse.Failure.Error to WeatherErrorResponse
+            map(WeatherErrorResponseMapper) { onError(this.message) }
+        }.onException {
+            onError("An unexpected error occurred. Please try again.")
         }
     }.onStart { onStart() }.onCompletion { onComplete() }.flowOn(ioDispatcher)
 
@@ -67,8 +75,11 @@ class WeatherRemoteDataSourceImpl @Inject constructor(
         val response = geocodingService.getCities(query)
         response.suspendOnSuccess {
             emit(data.map { it.toCity() })
-        }.onFailure {
-            onError(message())
+        }.onError {
+            // Map the ApiResponse.Failure.Error to WeatherErrorResponse
+            map(WeatherErrorResponseMapper) { onError(this.message) }
+        }.onException {
+            onError("An unexpected error occurred. Please try again.")
         }
     }.onStart { onStart() }.onCompletion { onComplete() }.flowOn(ioDispatcher)
 }

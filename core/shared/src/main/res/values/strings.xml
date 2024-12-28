@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="forecast">Forecast</string>
+    <string name="details">Details</string>
+    <string name="add_some_cities_to_your_favorites">Add some cities to your favorites!</string>
+    <string name="no_cities_found">No cities found</string>
+</resources>
