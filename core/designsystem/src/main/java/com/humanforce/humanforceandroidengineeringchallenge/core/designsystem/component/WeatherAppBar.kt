@@ -8,9 +8,11 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,4 +59,16 @@ fun WeatherTopAppBar(
             }
         }
     )
+}
+
+@Preview
+@Composable
+private fun WeatherAppBarPreview() {
+    MaterialTheme {
+        WeatherTopAppBar(
+            showSearch = true,
+            showFavorite = true,
+            isFavorite = true
+        )
+    }
 }

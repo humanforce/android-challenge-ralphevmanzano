@@ -81,8 +81,7 @@ fun CityPreviewScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                uiState = uiState,
-                weatherInfo = weatherInfo
+                uiState = uiState
             )
             WeatherInfoDivider(
                 modifier = Modifier.fillMaxWidth(),
@@ -95,7 +94,6 @@ fun CityPreviewScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    details = details,
                     uiState = uiState
                 )
             }
@@ -108,9 +106,9 @@ fun CityPreviewScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                uiState = uiState,
-                weatherInfo = weatherInfo
+                uiState = uiState
             )
+            Spacer(modifier = Modifier.height(56.dp))
         }
     }
 }

@@ -11,7 +11,6 @@ interface WeatherRemoteDataSource {
         lat: Double,
         long: Double,
         onStart: () -> Unit,
-        onComplete: () -> Unit,
         onError: (String?) -> Unit
     ): Flow<WeatherInfo>
 
@@ -19,14 +18,12 @@ interface WeatherRemoteDataSource {
         lat: Double,
         long: Double,
         onStart: () -> Unit,
-        onComplete: () -> Unit,
         onError: (String?) -> Unit
     ): Flow<List<Forecast>>
 
     fun getCities(
         query: String,
         onStart: () -> Unit,
-        onComplete: () -> Unit,
         onError: (String?) -> Unit
     ): Flow<List<City>>
 }

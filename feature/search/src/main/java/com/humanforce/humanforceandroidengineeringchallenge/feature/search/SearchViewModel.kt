@@ -33,20 +33,32 @@ class SearchViewModel @Inject constructor(
                     searchCitiesUseCase(
                         query = query,
                         onStart = { _uiState.update { it.copy(isLoading = true) } },
-                        onComplete = { },
-                        onError = { error -> _uiState.update { it.copy(isLoading = false, error = error) } }
+                        onError = { error ->
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    error = error
+                                )
+                            }
+                        }
                     ).collect { cities ->
                         _uiState.update { it.copy(isLoading = false, cities = cities) }
                     }
-                } else {
-                    _uiState.update { it.copy(isLoading = false, cities = emptyList()) }
                 }
             }
         }
     }
 
     fun onSearchChanged(q: String) {
-        _searchQuery.value = q
+        if (q.isBlank()) {
+            _uiState.update { it.copy(isLoading = false, cities = emptyList()) }
+        } else {
+            _searchQuery.value = q
+        }
+    }
+
+    fun consumeError() {
+        _uiState.update { it.copy(error = null) }
     }
 }
 

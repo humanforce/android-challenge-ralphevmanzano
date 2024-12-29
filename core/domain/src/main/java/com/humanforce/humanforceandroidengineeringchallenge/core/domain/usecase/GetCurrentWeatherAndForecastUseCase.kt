@@ -16,13 +16,12 @@ class GetCurrentWeatherAndForecastUseCase @Inject constructor(
         lat: Double,
         long: Double,
         onStart: () -> Unit,
-        onComplete: () -> Unit,
         onError: (String?) -> Unit
     ): Flow<WeatherInfo> {
         // Get currentWeather, then get forecast and append it to WeatherInfo
-        return weatherRepository.getCurrentWeather(lat, long, onStart, { }, onError)
+        return weatherRepository.getCurrentWeather(lat, long, onStart, onError)
             .flatMapConcat { weatherInfo ->
-                weatherRepository.getWeatherForecast(lat, long, { }, onComplete, onError)
+                weatherRepository.getWeatherForecast(lat, long, { }, onError)
                     .map { forecastList ->
                         weatherInfo.copy(forecast = forecastList)
                     }

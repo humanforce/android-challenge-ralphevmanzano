@@ -20,7 +20,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 
@@ -34,7 +33,6 @@ class WeatherRemoteDataSourceImpl @Inject constructor(
         lat: Double,
         long: Double,
         onStart: () -> Unit,
-        onComplete: () -> Unit,
         onError: (String?) -> Unit
     ): Flow<WeatherInfo> = flow {
         val response = weatherService.getCurrentWeather(lat, long)
@@ -46,13 +44,12 @@ class WeatherRemoteDataSourceImpl @Inject constructor(
         }.onException {
             onError("An unexpected error occurred. Please try again.")
         }
-    }.onStart { onStart() }.onCompletion { onComplete() }.flowOn(ioDispatcher)
+    }.onStart { onStart() }.flowOn(ioDispatcher)
 
     override fun getWeatherForecast(
         lat: Double,
         long: Double,
         onStart: () -> Unit,
-        onComplete: () -> Unit,
         onError: (String?) -> Unit
     ): Flow<List<Forecast>> = flow {
         val response = weatherService.getWeatherForecast(lat, long)
@@ -64,12 +61,11 @@ class WeatherRemoteDataSourceImpl @Inject constructor(
         }.onException {
             onError("An unexpected error occurred. Please try again.")
         }
-    }.onStart { onStart() }.onCompletion { onComplete() }.flowOn(ioDispatcher)
+    }.onStart { onStart() }.flowOn(ioDispatcher)
 
     override fun getCities(
         query: String,
         onStart: () -> Unit,
-        onComplete: () -> Unit,
         onError: (String?) -> Unit
     ): Flow<List<City>> = flow {
         val response = geocodingService.getCities(query)
@@ -81,5 +77,5 @@ class WeatherRemoteDataSourceImpl @Inject constructor(
         }.onException {
             onError("An unexpected error occurred. Please try again.")
         }
-    }.onStart { onStart() }.onCompletion { onComplete() }.flowOn(ioDispatcher)
+    }.onStart { onStart() }.flowOn(ioDispatcher)
 }

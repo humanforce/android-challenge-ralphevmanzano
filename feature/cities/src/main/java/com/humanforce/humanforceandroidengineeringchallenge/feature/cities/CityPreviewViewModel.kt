@@ -44,7 +44,6 @@ class CityPreviewViewModel @Inject constructor(
                 lat,
                 long,
                 onStart = { _uiState.update { it.copy(isLoading = true) } },
-                onComplete = {},
                 onError = { error -> _uiState.update { it.copy(isLoading = false, error = error) } }
             ).collect { weatherInfo ->
                 _uiState.update {

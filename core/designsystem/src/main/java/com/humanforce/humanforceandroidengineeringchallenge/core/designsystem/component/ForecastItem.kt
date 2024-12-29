@@ -11,7 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.humanforce.humanforceandroidengineeringchallenge.core.designsystem.theme.WeatherTheme
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.Forecast
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.glide.GlideImage
@@ -37,5 +39,20 @@ fun ForecastItem(modifier: Modifier = Modifier, forecast: Forecast) {
                 .padding(vertical = 4.dp)
         )
         Text("${forecast.tempMin.toInt()}°", color = Color.Gray)
+    }
+}
+
+@Preview
+@Composable
+private fun ForecastItemPreview() {
+    WeatherTheme {
+        ForecastItem(
+            forecast = Forecast(
+                day = "Mon",
+                weatherIconUrl = "",
+                tempMax = 20.0,
+                tempMin = 10.0
+            )
+        )
     }
 }

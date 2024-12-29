@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.City
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.WeatherInfo
-import com.humanforce.humanforceandroidengineeringchallenge.core.domain.usecase.AddFavoriteCityUseCase
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.usecase.GetCurrentWeatherAndForecastUseCase
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.usecase.LoadFavoriteCitiesUseCase
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.usecase.RemoveFavoriteCityUseCase
@@ -42,10 +41,9 @@ class WeatherViewModel @Inject constructor(
 
         viewModelScope.launch {
             getCurrentWeatherAndForecastUseCase(
-                lat,
-                long,
+                lat = lat,
+                long = long,
                 onStart = { _uiState.update { it.copy(isLoading = true, error = null) } },
-                onComplete = {},
                 onError = { error -> _uiState.update { it.copy(isLoading = false, error = error) } }
             ).collect { weatherInfo ->
                 if (isHome) {
@@ -90,5 +88,21 @@ class WeatherViewModel @Inject constructor(
 
     fun consumeError() {
         _uiState.update { it.copy(error = null) }
+    }
+
+    fun onLocationPermissionDenied() {
+        _uiState.update { it.copy(hasNoLocationPermission = true) }
+    }
+
+    fun resetPermissionFlag() {
+        _uiState.update { it.copy(hasNoLocationPermission = false) }
+    }
+
+    fun onLocationServicesEnabled() {
+        _uiState.update { it.copy(hasNoLocationServices = false) }
+    }
+
+    fun onLocationServicesDisabled() {
+        _uiState.update { it.copy(hasNoLocationServices = true) }
     }
 }

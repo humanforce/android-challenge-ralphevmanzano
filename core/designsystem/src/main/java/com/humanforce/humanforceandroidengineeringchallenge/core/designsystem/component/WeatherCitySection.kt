@@ -14,7 +14,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.humanforce.humanforceandroidengineeringchallenge.core.designsystem.theme.WeatherTheme
+import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.WeatherInfo
 import com.humanforce.humanforceandroidengineeringchallenge.core.shared.viewmodel.WeatherUiState
 
 @Composable
@@ -43,5 +46,19 @@ fun WeatherCitySection(
         } else {
             WeatherShimmerSection(modifier = Modifier.size(width = 160.dp, height = 56.dp))
         }
+    }
+}
+
+@Preview
+@Composable
+private fun WeatherCitySectionPreview() {
+    WeatherTheme {
+        WeatherCitySection(
+            isCurrentLocation = true, uiState = WeatherUiState(
+                weatherInfo = WeatherInfo(
+                    cityName = "London"
+                ),
+            )
+        )
     }
 }

@@ -18,27 +18,24 @@ class WeatherRepositoryImpl @Inject constructor(
         lat: Double,
         long: Double,
         onStart: () -> Unit,
-        onComplete: () -> Unit,
         onError: (String?) -> Unit
     ): Flow<WeatherInfo> =
-        weatherRemoteDataSource.getCurrentWeather(lat, long, onStart, onComplete, onError)
+        weatherRemoteDataSource.getCurrentWeather(lat, long, onStart, onError)
 
     override fun getWeatherForecast(
         lat: Double,
         long: Double,
         onStart: () -> Unit,
-        onComplete: () -> Unit,
         onError: (String?) -> Unit
     ): Flow<List<Forecast>> =
-        weatherRemoteDataSource.getWeatherForecast(lat, long, onStart, onComplete, onError)
+        weatherRemoteDataSource.getWeatherForecast(lat, long, onStart, onError)
 
     override fun getCities(
         query: String,
         onStart: () -> Unit,
-        onComplete: () -> Unit,
         onError: (String?) -> Unit
     ): Flow<List<City>> =
-        weatherRemoteDataSource.getCities(query, onStart, onComplete, onError)
+        weatherRemoteDataSource.getCities(query, onStart, onError)
 
     override fun loadFavoriteCities(): Flow<List<City>> = weatherLocalDataSource.loadFavoriteCities()
 

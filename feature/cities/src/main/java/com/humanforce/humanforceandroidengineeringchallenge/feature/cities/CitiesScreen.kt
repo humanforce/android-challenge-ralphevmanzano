@@ -4,8 +4,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,7 +47,7 @@ fun CitiesScreen(
     Column(modifier = modifier.fillMaxSize()) {
         WeatherTopAppBar(
             modifier = Modifier.fillMaxWidth(),
-            onSearchClick = onSearchClick,
+            onSearchClick = { onSearchClick() },
             showSearch = true
         )
         if (favoriteCities.isEmpty() && currentLocationWeatherInfo == null) {
@@ -58,12 +60,12 @@ fun CitiesScreen(
         } else {
             LazyColumn(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)) {
                 // Add current location item at the top
-                if (currentLocationWeatherInfo != null) {
+                currentLocationWeatherInfo?.apply {
                     val city = City(
-                        name = currentLocationWeatherInfo!!.cityName,
-                        country = currentLocationWeatherInfo!!.country,
-                        lat = currentLocationWeatherInfo!!.lat,
-                        long = currentLocationWeatherInfo!!.long,
+                        name = cityName,
+                        country = country,
+                        lat = lat,
+                        long = long,
                     )
                     item {
                         CityItem(
@@ -87,6 +89,7 @@ fun CitiesScreen(
                 }
             }
         }
+        Spacer(modifier = Modifier.height(56.dp))
     }
 }
 

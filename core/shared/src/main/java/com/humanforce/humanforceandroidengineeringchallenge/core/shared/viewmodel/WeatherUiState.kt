@@ -3,9 +3,11 @@ package com.humanforce.humanforceandroidengineeringchallenge.core.shared.viewmod
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.WeatherInfo
 
 data class WeatherUiState(
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
     val weatherInfo: WeatherInfo? = null,
+    val isCurrentLocation: Boolean = false,
     val error: String? = null,
     val hasNoInternet: Boolean = false,
-    val isCurrentLocation: Boolean = false
+    val hasNoLocationPermission: Boolean = false,
+    val hasNoLocationServices: Boolean = false
 )

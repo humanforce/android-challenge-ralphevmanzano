@@ -1,7 +1,6 @@
 package com.humanforce.humanforceandroidengineeringchallenge.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.LayoutCoordinates
 import kotlinx.serialization.Serializable
 
 sealed interface Screen {

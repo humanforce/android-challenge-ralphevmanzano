@@ -2,19 +2,23 @@ package com.humanforce.humanforceandroidengineeringchallenge
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -27,16 +31,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -84,21 +85,28 @@ class MainActivity : ComponentActivity() {
 
             when {
                 fineGranted -> {
-                    getCurrentLocation()
+                    checkLocationSettings()
                 }
                 coarseGranted -> {
-                    getCurrentLocation()
+                    checkLocationSettings()
                 }
                 else -> {
-                    // No location access
-                    Toast.makeText(
-                        this,
-                        "We need your location to show the weather forecast.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    weatherViewModel.onLocationPermissionDenied()
                 }
             }
         }
+
+    private val locationServiceLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            weatherViewModel.onLocationServicesEnabled()
+            getCurrentLocation()
+        } else {
+            Toast.makeText(this, getString(R.string.please_enable_location), Toast.LENGTH_SHORT).show()
+            weatherViewModel.onLocationServicesDisabled()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,31 +123,37 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
+                val uiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
                 val showBottomBar = !(currentDestination?.hasRoute(Screen.Search::class) ?: true ||
                         currentDestination?.hasRoute(Screen.CityPreview::class) ?: true)
-                val uiState by weatherViewModel.uiState.collectAsStateWithLifecycle()
                 val snackBarHostState = remember { SnackbarHostState() }
 
                 Scaffold(
+                    contentWindowInsets = WindowInsets(0),
                     snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
                     bottomBar = {
                         if (showBottomBar) {
-                            NavigationBar {
-                                routes.forEach { route ->
-                                    NavigationBarItem(
-                                        icon = { Icon(route.icon, contentDescription = route.name) },
-                                        label = { Text(route.name) },
-                                        selected = currentDestination?.hierarchy?.any { it.hasRoute(route.route::class) } == true,
-                                        onClick = {
-                                            navController.navigate(route.route) {
-                                                popUpTo(navController.graph.startDestinationId) {
-                                                    saveState = true
+                            Column {
+                                if (uiState.hasNoInternet) {
+                                    NoNetworkBanner(modifier = Modifier.fillMaxWidth())
+                                }
+                                NavigationBar {
+                                    routes.forEach { route ->
+                                        NavigationBarItem(
+                                            icon = { Icon(route.icon, contentDescription = route.name) },
+                                            label = { Text(route.name) },
+                                            selected = currentDestination?.hierarchy?.any { it.hasRoute(route.route::class) } == true,
+                                            onClick = {
+                                                navController.navigate(route.route) {
+                                                    popUpTo(navController.graph.startDestinationId) {
+                                                        saveState = true
+                                                    }
+                                                    launchSingleTop = true
+                                                    restoreState = true
                                                 }
-                                                launchSingleTop = true
-                                                restoreState = true
                                             }
-                                        }
-                                    )
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -151,12 +165,7 @@ class MainActivity : ComponentActivity() {
                                 startDestination = Screen.Home,
                             ) {
                                 composable<Screen.Home> {
-                                    HomeScreen(
-                                        weatherViewModel = weatherViewModel,
-                                        onSearchClick = {
-                                            navController.navigate(Screen.Search)
-                                        }
-                                    )
+                                    HomeScreen(weatherViewModel = weatherViewModel)
                                 }
                                 composable<Screen.Cities> {
                                     CitiesScreen(
@@ -196,19 +205,35 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
                             }
-
-                            if (uiState.hasNoInternet) {
-                                NoNetworkBanner(modifier = Modifier.fillMaxWidth())
-                            }
                         }
 
                         if (uiState.error != null) {
                             LaunchedEffect(Unit) {
                                 snackBarHostState.showSnackbar(
-                                    message = uiState.error ?: "An unexpected error occurred. Please try again.",
+                                    message = uiState.error ?: getString(R.string.unexpected_error),
                                     duration = SnackbarDuration.Short
                                 )
                                 weatherViewModel.consumeError()
+                            }
+                        }
+
+                        if (uiState.hasNoLocationPermission) {
+                            val context = LocalContext.current
+                            LaunchedEffect(Unit) {
+                                val result = snackBarHostState.showSnackbar(
+                                    message = getString(R.string.permission_denied),
+                                    duration = SnackbarDuration.Indefinite,
+                                    actionLabel = getString(R.string.settings),
+                                )
+
+                                // User clicked the "Settings" action
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.fromParts("package", context.packageName, null)
+                                    }
+                                    context.startActivity(intent)
+                                    weatherViewModel.resetPermissionFlag()
+                                }
                             }
                         }
                     }
@@ -227,29 +252,22 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         checkAndRequestLocationPermission()
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
         networkConnectivityObserver.unregisterCallback()
+        super.onDestroy()
     }
 
     private fun checkAndRequestLocationPermission() {
         when {
             hasLocationPermission() -> {
                 // Permission already granted check location settings
-                checkLocationSettings(
-                    onSuccess = {
-                        getCurrentLocation()
-                    },
-                    onFailure = {
-                        Toast.makeText(this, "Please enable location settings.", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                )
+                weatherViewModel.resetPermissionFlag()
+                checkLocationSettings()
             }
 
             shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
@@ -269,12 +287,28 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun checkLocationSettings(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    private fun checkLocationSettings() {
+        requestLocationSettings(
+            onSuccess = {
+                getCurrentLocation()
+            },
+            onFailure = {
+                Toast.makeText(
+                    this,
+                    getString(R.string.please_enable_location),
+                    Toast.LENGTH_SHORT
+                ).show()
+                weatherViewModel.onLocationServicesDisabled()
+            }
+        )
+    }
+
+    private fun requestLocationSettings(onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
         val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000).build()
 
         val locationSettingsRequest = LocationSettingsRequest.Builder()
             .addLocationRequest(locationRequest)
-            .setAlwaysShow(true)
+            .setAlwaysShow(false)
             .build()
 
         val settingsClient = LocationServices.getSettingsClient(this)
@@ -285,9 +319,9 @@ class MainActivity : ComponentActivity() {
             }
             .addOnFailureListener { exception ->
                 if (exception is ResolvableApiException) {
-                    // Location settings are not satisfied, but can be resolved
                     try {
-                        exception.startResolutionForResult(this, LOCATION_SERVICES_REQUEST_CODE)
+                        val intentSenderRequest = IntentSenderRequest.Builder(exception.resolution).build()
+                        locationServiceLauncher.launch(intentSenderRequest)
                     } catch (sendEx: IntentSender.SendIntentException) {
                         onFailure(sendEx)
                     }
@@ -299,17 +333,19 @@ class MainActivity : ComponentActivity() {
 
     private fun showPermissionRationaleDialog() {
         MaterialAlertDialogBuilder(this)
-            .setMessage("We need your location to show the weather forecast.")
-            .setPositiveButton("Allow") { _, _ ->
+            .setMessage(getString(R.string.we_need_your_location))
+            .setPositiveButton(getString(R.string.allow)) { _, _ ->
                 requestPermissionLauncher.launch(
                     arrayOf(
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION
                     )
                 )                }
-            .setNegativeButton("Deny") { dialog, _ ->
+            .setNegativeButton(getString(R.string.deny)) { dialog, _ ->
                 dialog.dismiss()
+                weatherViewModel.onLocationPermissionDenied()
             }
+            .setCancelable(false)
             .show()
     }
 
@@ -346,9 +382,5 @@ class MainActivity : ComponentActivity() {
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    companion object {
-        const val LOCATION_SERVICES_REQUEST_CODE = 102
     }
 }

@@ -11,9 +11,8 @@ class SearchCitiesUseCase @Inject constructor(
     operator fun invoke(
         query: String,
         onStart: () -> Unit,
-        onComplete: () -> Unit,
         onError: (String?) -> Unit
     ): Flow<List<City>> {
-        return weatherRepository.getCities(query, onStart, onComplete, onError)
+        return weatherRepository.getCities(query, onStart, onError)
     }
 }

@@ -13,15 +13,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.humanforce.humanforceandroidengineeringchallenge.core.designsystem.theme.WeatherTheme
+import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.WeatherInfo
 import com.humanforce.humanforceandroidengineeringchallenge.core.shared.viewmodel.WeatherUiState
 
 @Composable
 fun WeatherDetailsSection(
     modifier: Modifier = Modifier,
-    details: List<Pair<String, String>>?,
     uiState: WeatherUiState
 ) {
+    val details = uiState.weatherInfo?.getDetailsList()
+
     Column(modifier = modifier) {
         if (uiState.isLoading || uiState.weatherInfo == null) {
             WeatherShimmerSection(
@@ -50,5 +54,22 @@ fun WeatherDetailsSection(
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun WeatherDetailsSectionPreview() {
+    WeatherTheme {
+        WeatherDetailsSection(
+            uiState = WeatherUiState(isLoading = false, weatherInfo = WeatherInfo(
+                temp = 22,
+                feelsLike = 22,
+                tempMin = 22,
+                tempMax = 22,
+                pressure = 111,
+                clouds = 22
+            ))
+        )
     }
 }
