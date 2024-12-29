@@ -3,8 +3,9 @@ package com.humanforce.humanforceandroidengineeringchallenge.core.network
 import com.humanforce.humanforceandroidengineeringchallenge.core.network.model.WeatherErrorResponse
 import com.skydoves.sandwich.ApiResponse
 import com.skydoves.sandwich.mappers.ApiErrorModelMapper
-import com.skydoves.sandwich.message
+import com.skydoves.sandwich.retrofit.errorBody
 import com.skydoves.sandwich.retrofit.statusCode
+import kotlinx.serialization.json.Json
 
 object WeatherErrorResponseMapper : ApiErrorModelMapper<WeatherErrorResponse> {
 
@@ -15,6 +16,24 @@ object WeatherErrorResponseMapper : ApiErrorModelMapper<WeatherErrorResponse> {
      * @return A customized [WeatherErrorResponse] error response.
      */
     override fun map(apiErrorResponse: ApiResponse.Failure.Error): WeatherErrorResponse {
-        return WeatherErrorResponse(apiErrorResponse.statusCode.code, apiErrorResponse.message())
+        val errorBody = apiErrorResponse.errorBody
+        return if (errorBody != null) {
+            try {
+                Json.decodeFromString(
+                    WeatherErrorResponse.serializer(),
+                    errorBody.string()
+                )
+            } catch (e: Exception) {
+                WeatherErrorResponse(
+                    cod = apiErrorResponse.statusCode.code,
+                    message = "An unexpected error occurred. Please try again."
+                )
+            }
+        } else {
+            WeatherErrorResponse(
+                cod = apiErrorResponse.statusCode.code,
+                message = "An unexpected error occurred. Please try again."
+            )
+        }
     }
 }
