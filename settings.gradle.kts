@@ -21,3 +21,12 @@ dependencyResolutionManagement {
 
 rootProject.name = "Humanforce Android Engineering Challenge"
 include(":app")
+include(":core:data")
+include(":core:database")
+include(":core:designsystem")
+include(":core:network")
+include(":core:domain")
+include(":core:shared")
+include(":feature:home")
+include(":feature:cities")
+include(":feature:search")
