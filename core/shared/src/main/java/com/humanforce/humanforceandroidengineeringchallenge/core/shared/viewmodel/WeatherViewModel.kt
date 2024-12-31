@@ -78,10 +78,11 @@ class WeatherViewModel @Inject constructor(
     }
 
     fun onNetworkConnectionStateChange(enabled: Boolean) {
+        val prev = _uiState.value.hasNoInternet
         _uiState.update { it.copy(hasNoInternet = !enabled) }
-
+        val hasChangedToEnabled = enabled && prev != _uiState.value.hasNoInternet
         // Fetch weather info from last coordinates
-        if (enabled && prevLat != null && prevLong != null) {
+        if (hasChangedToEnabled && prevLat != null && prevLong != null) {
             getCurrentWeatherAndForecast(prevLat!!, prevLong!!, prevIsHome)
         }
     }

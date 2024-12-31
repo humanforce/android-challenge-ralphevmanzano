@@ -32,13 +32,13 @@ fun ForecastItem(modifier: Modifier = Modifier, forecast: Forecast) {
             imageModel = { forecast.weatherIconUrl },
             imageOptions = ImageOptions(contentScale = ContentScale.Fit)
         )
-        Text("${forecast.tempMax.toInt()}°")
+        Text("${forecast.tempMax}°")
         HorizontalDivider(
             modifier = Modifier
                 .width(48.dp)
                 .padding(vertical = 4.dp)
         )
-        Text("${forecast.tempMin.toInt()}°", color = Color.Gray)
+        Text("${forecast.tempMin}°", color = Color.Gray)
     }
 }
 
@@ -50,8 +50,8 @@ private fun ForecastItemPreview() {
             forecast = Forecast(
                 day = "Mon",
                 weatherIconUrl = "",
-                tempMax = 20.0,
-                tempMin = 10.0
+                tempMax = 20,
+                tempMin = 10
             )
         )
     }

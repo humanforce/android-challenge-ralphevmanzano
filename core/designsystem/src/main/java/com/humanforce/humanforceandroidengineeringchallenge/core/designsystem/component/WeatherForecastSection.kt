@@ -45,8 +45,8 @@ private fun WeatherForecastSectionPreview() {
                     forecast = listOf(
                         Forecast(
                             day = "Mon",
-                            tempMax = 25.0,
-                            tempMin = 20.0,
+                            tempMax = 25,
+                            tempMin = 20,
                             weatherDescription = "Sunny",
                             weatherIconUrl = ""
                         )

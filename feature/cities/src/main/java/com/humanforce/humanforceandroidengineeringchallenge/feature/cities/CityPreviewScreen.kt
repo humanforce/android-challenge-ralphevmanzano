@@ -1,5 +1,6 @@
 package com.humanforce.humanforceandroidengineeringchallenge.feature.cities
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,10 +12,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.humanforce.humanforceandroidengineeringchallenge.core.designsystem.component.NoNetworkBanner
 import com.humanforce.humanforceandroidengineeringchallenge.core.designsystem.component.WeatherCitySection
 import com.humanforce.humanforceandroidengineeringchallenge.core.designsystem.component.WeatherDetailsSection
 import com.humanforce.humanforceandroidengineeringchallenge.core.designsystem.component.WeatherForecastSection
@@ -29,7 +32,8 @@ import com.humanforce.humanforceandroidengineeringchallenge.core.shared.R
 fun CityPreviewScreen(
     modifier: Modifier,
     onBackButtonClick: () -> Unit,
-    onFavoriteClick: () -> Unit
+    onFavoriteClick: () -> Unit,
+    hasNoInternet: Boolean
 ) {
     val cityPreviewViewModel = hiltViewModel<CityPreviewViewModel>()
     val uiState by cityPreviewViewModel.uiState.collectAsStateWithLifecycle()
@@ -53,9 +57,7 @@ fun CityPreviewScreen(
     }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+        modifier = modifier.fillMaxSize()
     ) {
         WeatherTopAppBar(
             modifier = Modifier.fillMaxWidth(),
@@ -71,9 +73,13 @@ fun CityPreviewScreen(
             },
             onBackClick = onBackButtonClick
         )
+        if (hasNoInternet) {
+            NoNetworkBanner(modifier = Modifier.fillMaxWidth())
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
             WeatherCitySection(isCurrentLocation = false, uiState = uiState)
@@ -87,17 +93,12 @@ fun CityPreviewScreen(
                 modifier = Modifier.fillMaxWidth(),
                 label = stringResource(R.string.details)
             )
-
-            val details = weatherInfo?.getDetailsList()
-            if (details != null) {
-                WeatherDetailsSection(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    uiState = uiState
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
+            WeatherDetailsSection(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                uiState = uiState
+            )
             WeatherInfoDivider(
                 modifier = Modifier.fillMaxWidth(),
                 label = stringResource(R.string.forecast)
@@ -105,10 +106,19 @@ fun CityPreviewScreen(
             WeatherForecastSection(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
                 uiState = uiState
             )
             Spacer(modifier = Modifier.height(56.dp))
+        }
+
+        if (uiState.error != null) {
+            Toast.makeText(
+                LocalContext.current,
+                uiState.error ?: stringResource(R.string.unexpected_error),
+                Toast.LENGTH_SHORT
+            ).show()
+            cityPreviewViewModel.consumeError()
         }
     }
 }

@@ -67,4 +67,8 @@ class CityPreviewViewModel @Inject constructor(
             addFavoriteCityUseCase(city)
         }
     }
+
+    fun consumeError() {
+        _uiState.update { it.copy(error = null) }
+    }
 }

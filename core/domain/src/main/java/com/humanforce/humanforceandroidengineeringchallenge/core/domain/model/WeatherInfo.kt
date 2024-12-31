@@ -39,8 +39,8 @@ data class WeatherInfo(
 data class Forecast(
     val dt: Long = 0,
     val day: String = "",
-    val tempMin: Double = 0.0,
-    val tempMax: Double = 0.0,
+    val tempMin: Int = 0,
+    val tempMax: Int = 0,
     val weatherMain: String = "",
     val weatherDescription: String = "",
     val weatherIconUrl: String = "",

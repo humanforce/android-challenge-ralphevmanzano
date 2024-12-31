@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.humanforce.humanforceandroidengineeringchallenge.core.designsystem.component.NoNetworkBanner
 import com.humanforce.humanforceandroidengineeringchallenge.core.domain.model.City
 import com.humanforce.humanforceandroidengineeringchallenge.core.shared.R
 
@@ -41,7 +42,8 @@ import com.humanforce.humanforceandroidengineeringchallenge.core.shared.R
 fun SearchScreen(
     modifier: Modifier = Modifier,
     onCityClicked: (City) -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    hasNoInternet: Boolean
 ) {
     val searchViewModel: SearchViewModel = hiltViewModel()
     val uiState by searchViewModel.uiState.collectAsStateWithLifecycle()
@@ -99,6 +101,9 @@ fun SearchScreen(
             }
         )
 
+        if (hasNoInternet) {
+            NoNetworkBanner(modifier = Modifier.fillMaxWidth().padding(top = 8.dp))
+        }
 
         if (cities.isNotEmpty()) {
             LazyColumn(

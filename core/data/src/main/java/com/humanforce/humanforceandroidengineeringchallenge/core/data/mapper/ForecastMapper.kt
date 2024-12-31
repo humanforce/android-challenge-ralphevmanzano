@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import kotlin.math.roundToInt
 
 object ForecastMapper {
 
@@ -29,8 +30,8 @@ object ForecastMapper {
             Forecast(
                 dt = forecasts.first().dt,
                 day = DateUtils.dateToDayOfWeek(day),
-                tempMin = minTemp,
-                tempMax = maxTemp,
+                tempMin = minTemp.roundToInt(),
+                tempMax = maxTemp.roundToInt(),
                 weatherMain = weather?.main.orEmpty(),
                 weatherDescription = weather?.description.orEmpty(),
                 weatherIconUrl = weather?.icon.orEmpty().buildIconUrl()

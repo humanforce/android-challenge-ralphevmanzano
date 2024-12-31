@@ -190,7 +190,8 @@ class MainActivity : ComponentActivity() {
                                         },
                                         onNavigateBack = {
                                             navController.popBackStack()
-                                        }
+                                        },
+                                        hasNoInternet = uiState.hasNoInternet
                                     )
                                 }
                                 composable<Screen.CityPreview> {
@@ -201,7 +202,8 @@ class MainActivity : ComponentActivity() {
                                         },
                                         onFavoriteClick = {
                                             navController.popBackStack(Screen.Search, inclusive = true)
-                                        }
+                                        },
+                                        hasNoInternet = uiState.hasNoInternet
                                     )
                                 }
                             }

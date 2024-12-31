@@ -38,9 +38,7 @@ fun HomeScreen(
     val isCurrentLocation = weatherInfo?.cityId == currentLocationWeatherInfo?.cityId
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+        modifier = modifier.fillMaxSize()
     ) {
         WeatherTopAppBar(
             modifier = Modifier.fillMaxWidth(),
@@ -49,6 +47,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
             if (!uiState.isLoading && uiState.hasNoLocationServices && weatherInfo == null) {
